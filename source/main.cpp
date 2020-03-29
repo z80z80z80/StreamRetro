@@ -15,10 +15,12 @@
 #include "LibRetroGameWrapper.h"
 #include "libretro.h"
 
+
+
 int main(int argc, char* argv[]) {
 
     // using the wrapper class
-    auto wrapper = LibRetroGameWrapper(argv[1]);
+    auto gretro LibRetroGameWrapper(argv[1]);
 
    
     return 0;
