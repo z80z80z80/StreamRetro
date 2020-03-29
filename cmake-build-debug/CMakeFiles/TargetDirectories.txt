@@ -1,3 +1,0 @@
-/home/orell/Projekte/StreamRetro/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/orell/Projekte/StreamRetro/cmake-build-debug/CMakeFiles/streamRetro.dir
-/home/orell/Projekte/StreamRetro/cmake-build-debug/CMakeFiles/edit_cache.dir

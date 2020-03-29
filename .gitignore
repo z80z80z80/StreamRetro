@@ -1,6 +1,9 @@
 # cmake directories
 bin/*
-cmake-*
+cmake-*/*
+
+# jetbrains
+.idea/*
 # C++ binaries
 *.o
 *.out
