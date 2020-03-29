@@ -1,4 +1,6 @@
-
+# cmake directories
+bin/*
+cmake-*
 # C++ binaries
 *.o
 *.out
