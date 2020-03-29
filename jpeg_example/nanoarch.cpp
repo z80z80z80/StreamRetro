@@ -13,12 +13,11 @@
 #include <GLFW/glfw3.h>
 #include <alsa/asoundlib.h>
 
-#include <turbojpeg.h>
+#include <jpeglib.h>
 
 static GLFWwindow *g_win = NULL;
 static snd_pcm_t *g_pcm = NULL;
-static float g_scale = 1;
-static int scale = (int) g_scale;
+static float g_scale = 3;
 
 static GLfloat g_vertex[] = {
 	-1.0f, -1.0f, // left-bottom
@@ -194,6 +193,7 @@ static void video_configure(const struct retro_game_geometry *geom) {
 
 	if (!g_video.pixfmt)
 		g_video.pixfmt = GL_UNSIGNED_SHORT_5_5_5_1;
+
 	glfwSetWindowSize(g_win, nwidth, nheight);
 
 	glGenTextures(1, &g_video.tex_id);
@@ -204,6 +204,9 @@ static void video_configure(const struct retro_game_geometry *geom) {
 	g_video.pitch = geom->base_width * g_video.bpp;
 
 	glBindTexture(GL_TEXTURE_2D, g_video.tex_id);
+
+//	glPixelStorei(GL_UNPACK_ALIGNMENT, s_video.pixfmt == GL_UNSIGNED_INT_8_8_8_8_REV ? 4 : 2);
+//	glPixelStorei(GL_UNPACK_ROW_LENGTH, s_video.pitch / s_video.bpp);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -249,10 +252,12 @@ static bool video_set_pixel_format(unsigned format) {
 	return true;
 }
 
+
 static void video_refresh(const void *data, unsigned width, unsigned height, unsigned pitch) {
 	if (g_video.clip_w != width || g_video.clip_h != height) {
 		g_video.clip_h = height;
 		g_video.clip_w = width;
+
 		refresh_vertex_data();
 	}
 
@@ -264,41 +269,42 @@ static void video_refresh(const void *data, unsigned width, unsigned height, uns
 	}
 
 	if (data) {
+		FILE* outfile = fopen("test.jpeg", "wb");
+		struct jpeg_compress_struct cinfo;
+		struct jpeg_error_mgr       jerr;
 
+		cinfo.err = jpeg_std_error(&jerr);
+		jpeg_create_compress(&cinfo);
+		jpeg_stdio_dest(&cinfo, outfile);
+
+		cinfo.image_width      = g_video.clip_w;
+		cinfo.image_height     = g_video.clip_h;
+		cinfo.input_components = 3;
+		cinfo.in_color_space   = JCS_RGB;
+		jpeg_set_defaults(&cinfo);
+		/*set the quality [0..100]  */
+		jpeg_set_quality (&cinfo, 100, true);
+		jpeg_start_compress(&cinfo, true);
+
+		JSAMPROW row_pointer;          /* pointer to a single row */
+
+/*		while (cinfo.next_scanline < cinfo.image_height) {
+			// row_pointer = (JSAMPROW) &data[cinfo.next_scanline*(screen_shot->depth>>3)*screen_shot->width];
+			row_pointer = (JSAMPROW) &data[cinfo.next_scanline*3];
+			jpeg_write_scanlines(&cinfo, &row_pointer, 1);
+		}
+*/
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-				g_video.pixtype, g_video.pixfmt, data);
+						g_video.pixtype, g_video.pixfmt, data);
 
-		// for some reason the image is 3 times the original resolution?
-		// we need to find a way to find the correct w/h automatically 
-		int n = scale * scale * width * height * 3;
+		short* img = (short*) data;
 
-		// screen buffer, 3 * 1 byte per pixel
-		unsigned char* scrBuffer = (unsigned char*)malloc(n * sizeof(char));
-
-		// grabbing the raw pixel data in RGB888
-		glReadPixels((GLint)0, (GLint)0,
-   				(GLint)width * scale, (GLint)height * scale,
-				GL_RGB, GL_UNSIGNED_BYTE, scrBuffer);
-
-		// using TurboJPEG to write the data correctly
-		int jpegQual = 75;
-		int flags = 0;
-		unsigned char* jpegBuffer = NULL;
-		unsigned long jpegSize = 0;
-
-		tjhandle  handle = tjInitCompress();
-		// compress the raw data to jpeg
-		int tj_stat = tjCompress2(handle, scrBuffer, width * scale, width * scale * 3, height * scale,
-					TJPF_RGB, &(jpegBuffer), &jpegSize, TJSAMP_411, jpegQual, flags);
-
-		FILE *file = fopen("out.jpg", "wb");
-		fwrite(jpegBuffer, jpegSize, 1, file);
-		// close the file
-		// image still needs to be flipped (we can do this easier in css)
-		fclose(file);
-		// free the allocated memory
-		free(scrBuffer);
-	}
+                while (cinfo.next_scanline < cinfo.image_height) {
+                        row_pointer = (JSAMPROW) &img[cinfo.next_scanline*(cinfo.image_width)];
+                        jpeg_write_scanlines(&cinfo, &row_pointer, 1);
+                }
+		jpeg_finish_compress(&cinfo);
+}
 }
 
 static void video_render() {
