@@ -1,0 +1,4 @@
+BasedOnStyle: Mozilla
+TabWidth: 4
+ColumnLimit: 120
+AllowShortFunctionsOnASingleLine: Empty

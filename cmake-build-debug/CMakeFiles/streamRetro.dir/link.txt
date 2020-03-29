@@ -1,0 +1,1 @@
+/usr/bin/g++  -g   CMakeFiles/streamRetro.dir/source/main.cpp.o CMakeFiles/streamRetro.dir/source/LibRetroGameWrapper.cpp.o CMakeFiles/streamRetro.dir/source/Core.cpp.o  -o ../bin/streamRetro  -ldl -lGL -lGLEW -lglfw -lasound 
