@@ -8,35 +8,29 @@
  **/
 
 // include Core for game
-#include "Core.h"
-#include "LibRetroGameWrapper.h"
-
-#include <dlfcn.h>
+#include "StreamRetroGame.h"
 
 // CPP includes
 #include <iostream>
-#include <memory>
+
 #include <string>
 
 int
 main(int argc, char** argv)
 {
-  if (argc < 3) {
-    std::cerr << "usage: " << argv[0] << "  <core> <game>\n";
-    return -1;
-  }
+    if (argc < 3) {
+        std::cerr << "usage: " << argv[0] << "  <core> <game>\n";
+        return -1;
+    }
 
-  if (!glfwInit()) {
-    std::cerr << "Failed to initialize glfw\n";
-    return -1;
-  }
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize glfw\n";
+        return -1;
+    }
 
+    using namespace StreamRetro;
+    StreamRetroGame game(argv[1], argv[2]);
+    game.run();
 
-  Core core(argv[1], argv[2]);
-
-  core.load();
-  core.load_game();
-  core.run();
-
-  return 0;
+    return 0;
 }
