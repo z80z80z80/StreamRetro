@@ -140,6 +140,39 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
         }
 
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, g_video.pixtype, g_video.pixfmt, data);
+
+        // calculate the number of pixels (x3 for RGB)
+        int n = width * height * 3;
+
+        // screen buffer, 3 * 1 byte per pixel
+        unsigned char* scrBuffer = (unsigned char*)malloc(n * sizeof(char));
+
+        // grabbing the raw pixel data in RGB888
+        glReadPixels((GLint)0, (GLint)0,
+                     (GLint)width, (GLint)height,
+                     GL_RGB, GL_UNSIGNED_BYTE, scrBuffer);
+
+        // using TurboJPEG to write the data correctly
+        int jpegQual = 75;
+        int flags = 0;
+        unsigned char* jpegBuffer = NULL;
+        unsigned long jpegSize = 0;
+
+        // compress the raw data to jpeg
+        tjhandle  handle = tjInitCompress();
+        int tj_stat = tjCompress2(handle, scrBuffer, width, width * 3, height,
+                                  TJPF_RGB, &(jpegBuffer), &jpegSize, TJSAMP_411, jpegQual, flags);
+
+        FILE *file = fopen("tmp.jpg", "wb");
+        fwrite(jpegBuffer, jpegSize, 1, file);
+
+        // close the file
+        // image still needs to be flipped (we can do this easier in css)
+        fclose(file);
+
+        // free the allocated memory
+        free(scrBuffer);
+
     }
 }
 

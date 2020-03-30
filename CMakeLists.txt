@@ -15,7 +15,7 @@ set(INCLUDE_LIST source/main.cpp source/LibRetroGameWrapper.cpp source/Core.cpp)
 
 add_executable(streamRetro ${INCLUDE_LIST})
 target_include_directories(streamRetro PUBLIC source)
-target_link_libraries(streamRetro PRIVATE dl GL GLEW glfw asound)
+target_link_libraries(streamRetro PRIVATE dl GL GLEW glfw asound turbojpeg)
 set_target_properties(streamRetro
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")

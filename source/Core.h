@@ -21,11 +21,13 @@
 #include <GLFW/glfw3.h>
 #include <alsa/asoundlib.h>
 
+#include <turbojpeg.h>
+
 namespace StreamRetro {
 
 static GLFWwindow* g_win = nullptr;
 static snd_pcm_t* g_pcm = nullptr;
-static float g_scale = 3;
+static float g_scale = 1;
 
 static GLfloat g_vertex[] = {
     -1.0f, -1.0f, // left-bottom

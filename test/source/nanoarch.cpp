@@ -268,8 +268,7 @@ static void video_refresh(const void *data, unsigned width, unsigned height, uns
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
 				g_video.pixtype, g_video.pixfmt, data);
 
-		// for some reason the image is 3 times the original resolution?
-		// we need to find a way to find the correct w/h automatically 
+		// calculate the number of pixels (x3 for RGB)
 		int n = scale * scale * width * height * 3;
 
 		// screen buffer, 3 * 1 byte per pixel
