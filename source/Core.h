@@ -93,6 +93,7 @@ class Core
         video_deinit();
     }
 
+
     void set_callbacks();
     void load_game();
     void run();
@@ -124,14 +125,11 @@ class Core
     static void resize_to_aspect(double ratio, int sw, int sh, int* dw, int* dh);
     static void video_configure(const retro_game_geometry* geom);
     static bool video_set_pixel_format(unsigned format);
-    void video_render();
-    void video_deinit();
+    static void video_render();
+    static void video_deinit();
     static size_t audio_write(const void* buf, unsigned frames);
-    void audio_init(int frequency);
-    void audio_deinit()
-    {
-        snd_pcm_close(g_pcm);
-    };
+    static void audio_init(int frequency);
+    static void audio_deinit();
 
     static void log(enum retro_log_level level, const char* fmt, ...);
 };
