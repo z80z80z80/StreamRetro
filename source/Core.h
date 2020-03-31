@@ -29,6 +29,9 @@ static GLFWwindow* g_win = nullptr;
 static snd_pcm_t* g_pcm = nullptr;
 static float g_scale = 1;
 
+static int canvid_frame;
+static unsigned char* vidBuffer;
+
 static GLfloat g_vertex[] = {
     -1.0f, -1.0f, // left-bottom
     -1.0f, 1.0f,  // left-top
@@ -134,8 +137,6 @@ class Core
     };
 
     static void log(enum retro_log_level level, const char* fmt, ...);
-    static int canvid_frame;
-    static unsigned char* vidBuffer;
 };
 
 }
