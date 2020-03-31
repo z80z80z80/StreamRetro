@@ -134,6 +134,8 @@ class Core
     };
 
     static void log(enum retro_log_level level, const char* fmt, ...);
+    static int canvid_frame;
+    static unsigned char* vidBuffer;
 };
 
 }

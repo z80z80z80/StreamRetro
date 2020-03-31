@@ -256,4 +256,6 @@ if __name__ == '__main__':
         threading.Thread(target=os.system, args=["python http_server.py %s %s > /dev/null" % (str(http_port), str(fps))], daemon=True).start()
     else:
         threading.Thread(target=os.system, args=["python http_server.py %s %s" % (str(http_port), str(fps))], daemon=True).start()     
-    os.system("python doom.py --http %s --ap %s --fps %s  --res %s --sound %s" % (str(http_port), str(ap), str(fps), str(res), str(sound)))
+    #os.system("python doom.py --http %s --ap %s --fps %s  --res %s --sound %s" % (str(http_port), str(ap), str(fps), str(res), str(sound)))
+    threading.Thread(target=os.system, args=["python mv.py"], daemon=True).start()
+    os.system("./test.sh")

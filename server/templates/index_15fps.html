@@ -14,7 +14,7 @@
 	<div id=container style="margin:auto;text-align:center;background-color:black">
 	    <a> <!-- Using an image object instead of WebRTC since the switch browser does not support this. 
 		     This produces a ~3x stretched out image to fill the screen. Keeping the aspect ratio. -->
-        	<img src="static/placeholder.jpg" style="width:1280px;height:720px;" id="image" class="center"/>  
+        	<img src="static/placeholder.jpg" style="height:720px;-webkit-transform:scaleY(-1);transform:scaleY(-1);" id="image" class="center"/>  
 	    </a>
 	</div>
 
