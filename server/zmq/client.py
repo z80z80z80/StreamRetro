@@ -1,5 +1,4 @@
 import zmq
-from time import sleep
 
 context = zmq.Context.instance()
 subscriber = context.socket(zmq.SUB)
@@ -15,8 +14,6 @@ while True:
     if rec:
         print(rec)
         rec = 0
-    sleep(0.1)    
-
 
 subscriber.close()
 context.destroy()
