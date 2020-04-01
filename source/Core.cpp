@@ -241,6 +241,12 @@ Core::audio_init(int frequency)
     if (err < 0)
         std::cerr << "Failed to configure playback device: " << std::string(snd_strerror(err));
 }
+
+void Core::audio_deinit()
+{
+    snd_pcm_close(g_pcm);
+}
+
 void
 Core::video_deinit()
 {
