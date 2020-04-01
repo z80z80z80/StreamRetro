@@ -152,10 +152,7 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
                      (GLint)width, (GLint)height,
                      GL_RGB, GL_UNSIGNED_BYTE, scrBuffer);
 
-        memcpy(vidBuffer + n * canvid_frame, scrBuffer, n);
 
-        if (canvid_frame == 3)
-        {
             // using TurboJPEG to write the data correctly
             int jpegQual = 75;
             int flags = 0;
@@ -164,23 +161,17 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
 
             // compress the raw data to jpeg
             tjhandle  handle = tjInitCompress();
-            int tj_stat = tjCompress2(handle, vidBuffer, width, width * 3, height * 4,
+            int tj_stat = tjCompress2(handle, scrBuffer, width, width * 3, height,
                                       TJPF_RGB, &(jpegBuffer), &jpegSize, TJSAMP_411, jpegQual, flags);
  
-            FILE *file = fopen("frames/tmp.jpg", "wb");
+            FILE *file = fopen("static/img.jpg", "wb");
             fwrite(jpegBuffer, jpegSize, 1, file);
 
             // close the file
             // image still needs to be flipped (we can do this easier in css)
             fclose(file);
+            //system("mv static/tmp.jpg static/img.jpg");
 
-            //system("montage -border 0 -tile 4x -quality 100% frames/tmp*.jpg static/vid.jpg"); 
-            canvid_frame = 0;
-        }
-        else{
-            canvid_frame++;
-
-        }
         // free the allocated memory
         free(scrBuffer);
 
@@ -311,12 +302,6 @@ Core::video_configure(const retro_game_geometry* geom)
 
     nwidth *= g_scale;
     nheight *= g_scale;
-
-    // calculate the number of pixels (x3 for RGB)
-    int n = nwidth * nheight * 3;
-
-    canvid_frame = 0;
-    vidBuffer = (unsigned char*)malloc(n * 4 * sizeof(char));
 
     if (!g_win)
         create_window(nwidth, nheight);
