@@ -6,15 +6,20 @@ import sys
 import logging
 import time
 
+from flask import Flask, request, render_template, redirect
+app = Flask(__name__)
+app.debug = False
+
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
-#log.disabled = True
-#app.logger.disabled = True
+log.disabled = True
+
+app.logger.disabled = True
 
 # Create a ZeroMQ socket (as Publisher)
 context = zmq.Context.instance(1)
 publisher = context.socket(zmq.PUB)
-publisher.bind("tcp://127.0.0.1:4242")
+publisher.bind("tcp://127.0.0.1:1312")
 
 key = 0
 key_old = 0
@@ -22,17 +27,6 @@ key_old = 0
 def send(key):
     # Send data    
     publisher.send_string(key)    
-    #publisher.send_string(str(type("hello")))
-
-    #print(publisher)
-    # Close socket
-    #publisher.close()
-    #context.destroy()
-
-from flask import Flask, request, render_template, redirect
-app = Flask(__name__)
-app.debug = False
-
 
 @app.route("/", methods=['GET', 'POST'])
 def index():    
@@ -42,7 +36,6 @@ def index():
         send(key)     
         send(key)    
         key = 0
-        #time.sleep(1)
 
     return render_template(template)
 
@@ -52,7 +45,6 @@ if __name__=="__main__":
 
     if fps == 1:
         template = "index_15fps.html"
-        template = "index_20fps.html"
     else:
         template = "index_20fps.html"
     app.run(host="0.0.0.0", port=port)

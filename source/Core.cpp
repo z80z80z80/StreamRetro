@@ -45,9 +45,9 @@ void Core::set_callbacks() {
 void
 Core::load_game()
 {
-    subscriber.connect("tcp://127.0.0.1:4242");
+    // initialize the socket connection between libretro frontend and http server
+    subscriber.connect("tcp://127.0.0.1:1312");
     subscriber.setsockopt(ZMQ_SUBSCRIBE, filter, strlen (filter));
-    std::cout << "filter";
 
     retro_system_av_info av = { 0 };
     retro_system_info system = { 0 };
@@ -194,13 +194,38 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
 }
 
 void
+Core::update_keys(std::string key){
+    int i;
+    for (i=0; i<10; i++){
+        if (not joykeys[i].v){
+            joykeys[i].v = (joykeys[i].d == key); // if button is marked as not pressed and is physically pressed -> mark as pressed
+        }
+        else{
+            joykeys[i].v = (joykeys[i].u != key); // if button is marked as pressed but is physically released -> mark as unpressed 
+        }
+    }
+
+}
+
+bool
+Core::get_key(std::string name){
+    int i;
+    bool value;
+    for (i=0; i<10; i++){
+        if (joykeys[i].n == name){
+            value = joykeys[i].v;
+        }
+    }
+    return value;
+}
+
+void
 Core::input_poll()
 {
 
     // receive the data in non-blocking mode
     std::string key = "NONE";
     message = s_recv(subscriber, ZMQ_NOBLOCK);
-    //usleep(10000);
 
 /*
     static unsigned g_joy[RETRO_DEVICE_ID_JOYPAD_R3 + 1] = { 0 };
@@ -220,11 +245,12 @@ Core::input_poll()
 */
 
 
-    key = message; 
+    key = message;
+    update_keys(key); 
 
     int i;
     for (i = 0; g_binds[i].k || g_binds[i].rk; ++i)
-        g_joy[g_binds[i].rk] = ((glfwGetKey(g_win, g_binds[i].k) == GLFW_PRESS) || (g_binds[i].s == key));
+        g_joy[g_binds[i].rk] = ((glfwGetKey(g_win, g_binds[i].k) == GLFW_PRESS) || (get_key(g_binds[i].s) == true));
 
     // Quit nanoarch when pressing the Escape key.
     if (glfwGetKey(g_win, GLFW_KEY_ESCAPE) == GLFW_PRESS) {

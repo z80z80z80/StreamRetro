@@ -47,6 +47,14 @@ struct keymap
     unsigned rk; // retro joypad
 };
 
+struct joymap
+{
+    std::string n; // name of the key
+    std::string d; // string that represents "down"
+    std::string u; // string that repressents "up"
+    bool v; // value of the key
+};
+
 static struct
 {
     GLuint tex_id;
@@ -61,18 +69,29 @@ static struct
 
 static unsigned g_joy[RETRO_DEVICE_ID_JOYPAD_R3 + 1] = { 0 };
 
-static std::vector<keymap> g_binds = { { GLFW_KEY_X, "a_down", RETRO_DEVICE_ID_JOYPAD_A },
-                                       { GLFW_KEY_Z, "y_down", RETRO_DEVICE_ID_JOYPAD_B },
-                                       { GLFW_KEY_A, "sl_down", RETRO_DEVICE_ID_JOYPAD_Y },
-                                       { GLFW_KEY_S, "sr_down", RETRO_DEVICE_ID_JOYPAD_X },
-                                       { GLFW_KEY_UP, "up_down", RETRO_DEVICE_ID_JOYPAD_UP },
-                                       { GLFW_KEY_DOWN, "down_down", RETRO_DEVICE_ID_JOYPAD_DOWN },
-                                       { GLFW_KEY_LEFT, "left_down", RETRO_DEVICE_ID_JOYPAD_LEFT },
-                                       { GLFW_KEY_RIGHT, "right_down", RETRO_DEVICE_ID_JOYPAD_RIGHT },
-                                       { GLFW_KEY_ENTER, "zr_down", RETRO_DEVICE_ID_JOYPAD_START },
-                                       { GLFW_KEY_BACKSPACE, "zl_down", RETRO_DEVICE_ID_JOYPAD_SELECT },
+static std::vector<keymap> g_binds = { { GLFW_KEY_X, "a", RETRO_DEVICE_ID_JOYPAD_A },
+                                       { GLFW_KEY_Z, "y", RETRO_DEVICE_ID_JOYPAD_B },
+                                       { GLFW_KEY_A, "sl", RETRO_DEVICE_ID_JOYPAD_Y },
+                                       { GLFW_KEY_S, "sr", RETRO_DEVICE_ID_JOYPAD_X },
+                                       { GLFW_KEY_UP, "up", RETRO_DEVICE_ID_JOYPAD_UP },
+                                       { GLFW_KEY_DOWN, "down", RETRO_DEVICE_ID_JOYPAD_DOWN },
+                                       { GLFW_KEY_LEFT, "left", RETRO_DEVICE_ID_JOYPAD_LEFT },
+                                       { GLFW_KEY_RIGHT, "right", RETRO_DEVICE_ID_JOYPAD_RIGHT },
+                                       { GLFW_KEY_ENTER, "zr", RETRO_DEVICE_ID_JOYPAD_START },
+                                       { GLFW_KEY_BACKSPACE, "zl", RETRO_DEVICE_ID_JOYPAD_SELECT },
 
                                        { 0, "", 0 } };
+
+static std::vector<joymap> joykeys = { {"a", "a_down", "a_up", false},
+                                      {"y", "y_down", "y_up", false},
+                                      {"sl", "sl_down", "sl_up", false},
+                                      {"sr", "sl_down", "sr_up", false},
+                                      {"up", "up_down", "up_up", false},
+                                      {"down", "down_down", "down_up", false},
+                                      {"left", "left_down", "left_up", false},
+                                      {"right", "right_down", "right_up", false},
+                                      {"zr", "zr_down", "zr_up", false},
+                                      {"zl", "zl_down", "zl_up", false}};
 
 class Core
 {
@@ -131,6 +150,8 @@ class Core
     static size_t audio_write(const void* buf, unsigned frames);
     static void audio_init(int frequency);
     static void audio_deinit();
+    static void update_keys(std::string key);
+    static bool get_key(std::string name);
 
     static void log(enum retro_log_level level, const char* fmt, ...);
 };
