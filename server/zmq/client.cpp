@@ -1,6 +1,7 @@
 //  g++ -lzmq client.cpp -o client.o -w
 
 #include <zmq.hpp>
+#include "zhelpers.hpp"
 #include <iostream>
 #include <sstream>
 
@@ -14,15 +15,14 @@ int main (int argc, char *argv[])
     const char *filter = "h";
     subscriber.setsockopt(ZMQ_SUBSCRIBE, filter, strlen (filter));
 
-    while (true) {
+    std::string message;
 
-        zmq::message_t message;
+    while (true) {        
 
-        subscriber.recv(&message, ZMQ_DONTWAIT);
+        message = s_recv(subscriber, ZMQ_DONTWAIT);
 
-        if (errno != EAGAIN){
-            std::string str = static_cast<char*>(message.data());
-            std::cout << str + "\n";           
+        if (errno != EAGAIN){          
+            std::cout << message + "\n";           
         }
         else{
             std::cout << "nothing\n";
