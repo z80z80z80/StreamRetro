@@ -1,33 +1,49 @@
 #!/usr/bin/env python3
 
-from flask import Flask, request, render_template, redirect
 import socket
+import zmq
 import sys
 import logging
-
-app = Flask(__name__)
-app.debug = False
+import time
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
-log.disabled = True
-app.logger.disabled = True
+#log.disabled = True
+#app.logger.disabled = True
+
+# Create a ZeroMQ socket (as Publisher)
+context = zmq.Context.instance(1)
+publisher = context.socket(zmq.PUB)
+publisher.bind("tcp://127.0.0.1:4242")
+
+key = 0
+key_old = 0
 
 def send(key):
-    # Create a UDP socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server_address = ('localhost', 1312)
-    message = str.encode(key)
-    
-    # Send data
-    sent = sock.sendto(message, server_address)
-    sock.close()
+    # Send data    
+    publisher.send_string(key)    
+    #publisher.send_string(str(type("hello")))
+
+    #print(publisher)
+    # Close socket
+    #publisher.close()
+    #context.destroy()
+
+from flask import Flask, request, render_template, redirect
+app = Flask(__name__)
+app.debug = False
+
 
 @app.route("/", methods=['GET', 'POST'])
-def index():
+def index():    
     if request.method == "POST":
         key = request.form["key"]
-        send(key)        
+        app.logger.error(key)
+        send(key)     
+        send(key)    
+        key = 0
+        #time.sleep(1)
+
     return render_template(template)
 
 if __name__=="__main__":

@@ -3,31 +3,32 @@
 #include <zmq.hpp>
 #include "zhelpers.hpp"
 #include <iostream>
-#include <sstream>
+#include <unistd.h>
 
-int main (int argc, char *argv[])
+int main ()
 {
     zmq::context_t context (1);
 
     zmq::socket_t subscriber (context, ZMQ_SUB);
-    subscriber.connect("tcp://localhost:5556");
+    subscriber.connect("tcp://127.0.0.1:4242");
 
-    const char *filter = "h";
+    const char *filter = "";
     subscriber.setsockopt(ZMQ_SUBSCRIBE, filter, strlen (filter));
 
     std::string message;
 
     while (true) {        
 
-        message = s_recv(subscriber, ZMQ_DONTWAIT);
+        message = s_recv(subscriber, ZMQ_NOBLOCK);
 
         if (errno != EAGAIN){          
             std::cout << message + "\n";           
         }
         else{
-            std::cout << "nothing\n";
+            //std::cout << "nothing\n";
             errno = 0;
         }
+        //usleep(10000);
 
     }
     return 0;

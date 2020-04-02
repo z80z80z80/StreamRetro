@@ -8,7 +8,7 @@ int main () {
 
     zmq::context_t context (1);
     zmq::socket_t publisher (context, ZMQ_PUB);
-    publisher.bind("tcp://*:5556");
+    publisher.bind("tcp://*:1312");
 
     while (1) {
         zmq::message_t message(6);

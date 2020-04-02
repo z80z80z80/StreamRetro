@@ -17,6 +17,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <zmq.hpp>
+#include "zhelpers.hpp"
+#include <unistd.h>
+
+// generate zmq socket and connect to server
+zmq::context_t context (1);
+
+static zmq::socket_t subscriber (context, ZMQ_SUB);
+static const char *filter = "";
+static std::string message;
+
 namespace StreamRetro {
 
 void Core::set_callbacks() {
@@ -34,6 +45,10 @@ void Core::set_callbacks() {
 void
 Core::load_game()
 {
+    subscriber.connect("tcp://127.0.0.1:4242");
+    subscriber.setsockopt(ZMQ_SUBSCRIBE, filter, strlen (filter));
+    std::cout << "filter";
+
     retro_system_av_info av = { 0 };
     retro_system_info system = { 0 };
     retro_game_info info = { game_path.c_str(), 0 };
@@ -164,13 +179,13 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
             int tj_stat = tjCompress2(handle, scrBuffer, width, width * 3, height,
                                       TJPF_RGB, &(jpegBuffer), &jpegSize, TJSAMP_411, jpegQual, flags);
  
-            FILE *file = fopen("static/img.jpg", "wb");
+            FILE *file = fopen("static/tmp.jpg", "wb");
             fwrite(jpegBuffer, jpegSize, 1, file);
 
             // close the file
             // image still needs to be flipped (we can do this easier in css)
             fclose(file);
-            //system("mv static/tmp.jpg static/img.jpg");
+            system("mv static/tmp.jpg static/img.jpg");
 
         // free the allocated memory
         free(scrBuffer);
@@ -181,9 +196,35 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
 void
 Core::input_poll()
 {
+
+    // receive the data in non-blocking mode
+    std::string key = "NONE";
+    message = s_recv(subscriber, ZMQ_NOBLOCK);
+    //usleep(10000);
+
+/*
+    static unsigned g_joy[RETRO_DEVICE_ID_JOYPAD_R3 + 1] = { 0 };
+
+    static std::vector<keymap> g_binds = { { GLFW_KEY_X, "a_down", RETRO_DEVICE_ID_JOYPAD_A },
+                                           { GLFW_KEY_Z, "y_down", RETRO_DEVICE_ID_JOYPAD_B },
+                                           { GLFW_KEY_A, "sl_down", RETRO_DEVICE_ID_JOYPAD_Y },
+                                           { GLFW_KEY_S, "sr_down", RETRO_DEVICE_ID_JOYPAD_X },
+                                           { GLFW_KEY_UP, "up_down", RETRO_DEVICE_ID_JOYPAD_UP },
+                                           { GLFW_KEY_DOWN, "down_down", RETRO_DEVICE_ID_JOYPAD_DOWN },
+                                           { GLFW_KEY_LEFT, "left_down", RETRO_DEVICE_ID_JOYPAD_LEFT },
+                                           { GLFW_KEY_RIGHT, "right_down", RETRO_DEVICE_ID_JOYPAD_RIGHT },
+                                           { GLFW_KEY_ENTER, "zr_down", RETRO_DEVICE_ID_JOYPAD_START },
+                                           { GLFW_KEY_BACKSPACE, "zl_down", RETRO_DEVICE_ID_JOYPAD_SELECT },
+
+                                           { 0, "", 0 } };
+*/
+
+
+    key = message; 
+
     int i;
     for (i = 0; g_binds[i].k || g_binds[i].rk; ++i)
-        g_joy[g_binds[i].rk] = (glfwGetKey(g_win, g_binds[i].k) == GLFW_PRESS);
+        g_joy[g_binds[i].rk] = ((glfwGetKey(g_win, g_binds[i].k) == GLFW_PRESS) || (g_binds[i].s == key));
 
     // Quit nanoarch when pressing the Escape key.
     if (glfwGetKey(g_win, GLFW_KEY_ESCAPE) == GLFW_PRESS) {

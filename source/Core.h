@@ -42,8 +42,9 @@ static GLfloat g_texcoords[] = {
 
 struct keymap
 {
-    unsigned k;
-    unsigned rk;
+    unsigned k; // keyboard
+    std::string s; // switch
+    unsigned rk; // retro joypad
 };
 
 static struct
@@ -60,18 +61,18 @@ static struct
 
 static unsigned g_joy[RETRO_DEVICE_ID_JOYPAD_R3 + 1] = { 0 };
 
-static std::vector<keymap> g_binds = { { GLFW_KEY_X, RETRO_DEVICE_ID_JOYPAD_A },
-                                       { GLFW_KEY_Z, RETRO_DEVICE_ID_JOYPAD_B },
-                                       { GLFW_KEY_A, RETRO_DEVICE_ID_JOYPAD_Y },
-                                       { GLFW_KEY_S, RETRO_DEVICE_ID_JOYPAD_X },
-                                       { GLFW_KEY_UP, RETRO_DEVICE_ID_JOYPAD_UP },
-                                       { GLFW_KEY_DOWN, RETRO_DEVICE_ID_JOYPAD_DOWN },
-                                       { GLFW_KEY_LEFT, RETRO_DEVICE_ID_JOYPAD_LEFT },
-                                       { GLFW_KEY_RIGHT, RETRO_DEVICE_ID_JOYPAD_RIGHT },
-                                       { GLFW_KEY_ENTER, RETRO_DEVICE_ID_JOYPAD_START },
-                                       { GLFW_KEY_BACKSPACE, RETRO_DEVICE_ID_JOYPAD_SELECT },
+static std::vector<keymap> g_binds = { { GLFW_KEY_X, "a_down", RETRO_DEVICE_ID_JOYPAD_A },
+                                       { GLFW_KEY_Z, "y_down", RETRO_DEVICE_ID_JOYPAD_B },
+                                       { GLFW_KEY_A, "sl_down", RETRO_DEVICE_ID_JOYPAD_Y },
+                                       { GLFW_KEY_S, "sr_down", RETRO_DEVICE_ID_JOYPAD_X },
+                                       { GLFW_KEY_UP, "up_down", RETRO_DEVICE_ID_JOYPAD_UP },
+                                       { GLFW_KEY_DOWN, "down_down", RETRO_DEVICE_ID_JOYPAD_DOWN },
+                                       { GLFW_KEY_LEFT, "left_down", RETRO_DEVICE_ID_JOYPAD_LEFT },
+                                       { GLFW_KEY_RIGHT, "right_down", RETRO_DEVICE_ID_JOYPAD_RIGHT },
+                                       { GLFW_KEY_ENTER, "zr_down", RETRO_DEVICE_ID_JOYPAD_START },
+                                       { GLFW_KEY_BACKSPACE, "zl_down", RETRO_DEVICE_ID_JOYPAD_SELECT },
 
-                                       { 0, 0 } };
+                                       { 0, "", 0 } };
 
 class Core
 {
