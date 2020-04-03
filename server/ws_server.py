@@ -34,23 +34,9 @@ def send(key):
     # Send data    
     publisher.send_string(key)    
 
-@app.route("/")#, methods=['GET', 'POST'])
+@app.route("/") #, methods=['GET', 'POST']
 def index():    
-    return render_template(template)
-
-@socketio.on('connect', namespace='/retro')
-def test_connect():
-    emit('my_response', {'data': 'Connected'})
-    print('my_response', {'data': 'Connected'})
-
-@socketio.on('event', namespace='/retro')
-def test_message(message):
-    key = message['data']
-    send(key)
-    send(key)
-    print(key)
-    '''    
-    emit('my_response', {'data': message['data']}, broadcast=True)
+    '''
     if request.method == "POST":
         key = request.form["key"]
         app.logger.error(key)
@@ -58,13 +44,32 @@ def test_message(message):
         send(key)    
         key = 0
     '''
+    return render_template(template)
+
+# websockets test
+@socketio.on('my_event', namespace='/test')
+def test_message(message):
+    emit('my_response', {'data': message['data']})
+    print('my_response', {'data': message['data']})
+
+@socketio.on('my_broadcast_event', namespace='/test')
+def test_message(message):
+    emit('my_response', {'data': message['data']}, broadcast=True)
+    print('my_response', {'data': message['data']})
+
+@socketio.on('connect', namespace='/test')
+def test_connect():
+    emit('my_response', {'data': 'Connected'})
+    print('my_response', {'data': 'Connected'})
+
+@socketio.on('disconnect_request', namespace='/test')
+def test_disconnect():
+    print('Client disconnected')
+
 
 if __name__=="__main__":
     port = sys.argv[1]    
     fps = int(sys.argv[2])
 
-    if fps == 1:
-        template = "index_15fps.html"
-    else:
-        template = "index_20fps.html"
+    template = "index_20fps.html"
     socketio.run(app, host="0.0.0.0", port=port)

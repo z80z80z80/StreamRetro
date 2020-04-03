@@ -19,6 +19,10 @@ var fps = 30;
 
 var sending = false;
 
+// create socket with namespace "retro"
+namespace = '/retro';
+var socket = io(namespace);
+
 function update(){
 	reportOnGamepad();
 
@@ -39,20 +43,26 @@ function updateImage() {
 function sendJoystick(ax0, ax1) { // sends joystick information back to the flask app (server.py) using XML post requests
 				  // since the Switch browser does not support WebSocket
 	if (!(sending)){
+        /*
 		var req = new XMLHttpRequest();
 		req.open('POST', '/', true);
 		req.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
 		req.send("key=" +"Stick;"+"1"+";"+ax0+";"+ax1);
+        */
+        socket.emit('event', {data: "Stick;"+"1"+";"+ax0+";"+ax1});
 		sending = false;
 	}
 }
 
 function sendKey(key){
 	if (!(sending)){
+        /*
 		var req = new XMLHttpRequest();
 		req.open('POST', '/', true);
 		req.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
 		req.send("key=" + key);
+        */
+        socket.emit('event', {data: key});
 		sending = false;
 	}
 }
