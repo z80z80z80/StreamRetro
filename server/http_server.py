@@ -7,7 +7,13 @@ import logging
 import time
 
 from flask import Flask, request, render_template, redirect
+from flask_socketio import SocketIO, emit
+
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = 'StreamRetro'
+socketio = SocketIO(app)
+
 app.debug = False
 
 log = logging.getLogger('werkzeug')
@@ -47,4 +53,4 @@ if __name__=="__main__":
         template = "index_15fps.html"
     else:
         template = "index_20fps.html"
-    app.run(host="0.0.0.0", port=port)
+    socketio.run(app, host="0.0.0.0", port=port)
