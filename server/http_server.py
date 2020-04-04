@@ -2,10 +2,11 @@
 
 import socket
 import zmq
-import sys
+import sys, os
 import logging
 import time
 import base64
+import threading
 
 from flask import Flask, request, render_template, redirect
 from flask_socketio import SocketIO, emit
@@ -31,12 +32,32 @@ publisher.bind("tcp://127.0.0.1:1312")
 key = 0
 key_old = 0
 
+global thread
+global running 
+running = 0
+thread = 0
+stop_event= threading.Event()
+
 def send(key):
     # Send data    
     publisher.send_string(key)    
+    publisher.send_string(key)    
+
+def launch(system, rom, stop_event):
+    os.system("../../streamRetro /usr/lib/libretro/%s ../roms/%s > /dev/null &" % (system, rom))
+    
+def run(system, rom):
+    global thread
+    if thread:
+        stop_event.set()   
+    thread = threading.Thread(target=os.system, args=["./../bin/streamRetro /usr/lib/libretro/%s ../roms/%s > /dev/null" % (system, rom)], daemon=True).start()
 
 @app.route("/")#, methods=['GET', 'POST'])
 def index():    
+    global running
+    if not running:
+        threading.Thread(target=os.system, args=["python zmq/relais.py"], daemon=True).start()                   
+        running = 1
     return render_template(template)
 
 @socketio.on('connect', namespace='/retro')
@@ -48,8 +69,7 @@ def test_connect():
 def test_message(message):
     key = message['data']
     send(key)
-    send(key)
-    print(key)
+    #print(key)
     '''    
     emit('my_response', {'data': message['data']}, broadcast=True)
     if request.method == "POST":
@@ -59,6 +79,12 @@ def test_message(message):
         send(key)    
         key = 0
     '''
+'''
+@socketio.on('change_game', namespace='/retro')
+def test_screen(message):
+    screen_sz = run(message.system, message.rom)
+    emit('screen', screen_sz, broadcast=True)
+'''   
 
 @socketio.on('data_in', namespace='/retro')
 def test_data(message):
@@ -70,11 +96,11 @@ def test_data(message):
     #f.close()
     
 if __name__=="__main__":
-    port = sys.argv[1]    
-    fps = int(sys.argv[2])
+    channel = 1
+    ap = sys.argv[1]
+    threading.Thread(target=os.system, args=["create_ap -n -c %s --redirect-to-localhost -w 1+2 %s MarikoDoom > /dev/null" % (channel, ap)], daemon=True).start()                   
 
-    if fps == 1:
-        template = "index_15fps.html"
-    else:
-        template = "index_20fps.html"
-    socketio.run(app, host="0.0.0.0", port=port)
+    run("gambatte_libretro.so", "gbai.gb")
+
+    template = "index_20fps.html"
+    socketio.run(app, host="0.0.0.0", port=80)

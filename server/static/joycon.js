@@ -19,14 +19,17 @@ var fps = 30;
 
 var sending = false;
 
+var img = new Image();
+img.src = '';
+
 // create socket with namespace "retro"
 namespace = '/retro';
 var socket = io(namespace);
+socket.on('data_out', function(data){img.src="data:image/jpg;base64, "+data;}); // update data
 
-var img_data = "NOTHING";
-//io.on('connection', function(socket){
-  socket.on('data_out', function(data){img_data=data;}); // update data
-//});
+//var container = document.getElementById('#container');
+var canvas;
+var ctx;
 
 function update(){
 	reportOnGamepad();
@@ -41,8 +44,13 @@ function update(){
 	window.requestAnimationFrame(update);
 }
 
-function updateImage() {
-    document.getElementById("image").src="data:image/jpg;base64, " + img_data;
+function updateImage() {    
+    var height = 144;
+    var width = 160;
+    ctx.drawImage(img, 1280/2-width/2,720/2-height);
+    //console.log("test");	
+    //document.getElementById("image").src="data:image/jpg;base64, " + img_data;
+    
 	//document.getElementById("image").src="static/img.jpg?t=" + new Date().getTime(); // reload updated image without caching
 }
 

@@ -175,32 +175,42 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
                      GL_RGB, GL_UNSIGNED_BYTE, scrBuffer);
 
 
-            // using TurboJPEG to write the data correctly
-            int jpegQual = 75;
-            int flags = 0;
-            unsigned char* jpegBuffer = NULL;
-            unsigned long jpegSize = 0;
+        // using TurboJPEG to write the data correctly
+        int jpegQual = 75;
+        int flags = 0;
+        unsigned char* jpegBuffer = NULL;
+        //unsigned char* transBuffer = NULL;
+        unsigned long jpegSize = 0;
 
-            // compress the raw data to jpeg
-            tjhandle  handle = tjInitCompress();
-            int tj_stat = tjCompress2(handle, scrBuffer, width, width * 3, height,
-                                      TJPF_RGB, &(jpegBuffer), &jpegSize, TJSAMP_411, jpegQual, flags);
- 
-            /*
-            FILE *file = fopen("static/tmp.jpg", "wb");
-            fwrite(jpegBuffer, jpegSize, 1, file);
+        // compress the raw data to jpeg
+        tjhandle handle = tjInitCompress();
+        int tj_stat = tjCompress2(handle, scrBuffer, width, width * 3, height,
+                                  TJPF_RGB, &(jpegBuffer), &jpegSize, TJSAMP_411, jpegQual, flags);
 
-            // close the file
-            // image still needs to be flipped (we can do this easier in css)
-            fclose(file);
-            system("mv static/tmp.jpg static/img.jpg");
-            */
+        /*
+        FILE *file = fopen("static/tmp.jpg", "wb");
+        fwrite(jpegBuffer, jpegSize, 1, file);
 
-            zmq::message_t img_data(jpegSize);
-            memcpy((char*) img_data.data(), jpegBuffer, jpegSize);
-    
-            publisher.send(img_data);
-        // free the allocated memory
+        // close the file
+        // image still needs to be flipped (we can do this easier in css)
+        fclose(file);
+        system("mv static/tmp.jpg static/img.jpg");
+        */
+
+        /*
+        tjhandle transform = tjInitTransform();
+        tjtransform xform;
+        xform.options = TJXOP_HFLIP;
+        memset(&xform, 0, sizeof(tjtransform));
+        tjTransform(transform, jpegBuffer, jpegSize, 1, &transBuffer, &jpegSize,
+                  &xform, flags);
+        */
+        zmq::message_t img_data(jpegSize);
+        //memcpy((char*) img_data.data(), transBuffer, jpegSize);
+        memcpy((char*) img_data.data(), jpegBuffer, jpegSize);
+
+        publisher.send(img_data);
+    // free the allocated memory
         free(scrBuffer);
 
     }

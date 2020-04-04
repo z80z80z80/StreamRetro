@@ -29,8 +29,8 @@ while True:
         #sio.emit('data_in', rec, '/retro')
         sio.emit('data_in', base64.b64encode(rec).decode(), '/retro')
         #sio.emit('data_in', {'data': "test"}, namespace='/retro')
-    if i%60 == 0:        
-        print(type(base64.b64encode(rec).decode()))
+    #if i%60 == 0:        
+    #    print(type(base64.b64encode(rec).decode()))
     rec_old = rec
     rec = 0     
 
