@@ -87,6 +87,9 @@ class Core
       : libretro(libretro)
       , game_path(game_path){};
 
+    /***
+     * Deconstructs core object and deinits video and audio
+     */
     ~Core()
     {
         audio_deinit();

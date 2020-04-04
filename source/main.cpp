@@ -15,6 +15,10 @@
 
 #include <string>
 
+
+#include <string>
+#include <algorithm>
+
 int
 main(int argc, char** argv)
 {
@@ -31,6 +35,5 @@ main(int argc, char** argv)
     using namespace StreamRetro;
     StreamRetroGame game(argv[1], argv[2]);
     game.run();
-
     return 0;
 }

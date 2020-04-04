@@ -11,14 +11,16 @@
 
 #include "Core.h"
 
-#include <errno.h>
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cerrno>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 
 namespace StreamRetro {
 
+/***
+ * set callback functions fro libretro to provide interaction functions
+ */
 void Core::set_callbacks() {
     libretro.set_environment(environment);
     libretro.set_video_refresh(video_refresh);
@@ -37,6 +39,7 @@ Core::load_game()
     retro_system_av_info av = { 0 };
     retro_system_info system = { 0 };
     retro_game_info info = { game_path.c_str(), 0 };
+    // open game file
     FILE* file = fopen(game_path.c_str(), "rb");
 
     if (!file)
@@ -84,6 +87,7 @@ Core::run()
 }
 
 /*** PRIVATE MEMBERS ***/
+
 
 bool
 Core::environment(unsigned cmd, void* data)
@@ -226,6 +230,10 @@ Core::audio_write(const void* buf, unsigned frames)
     return written;
 }
 
+/***
+ * initializes audio device
+ * @param frequency
+ */
 void
 Core::audio_init(int frequency)
 {
@@ -240,11 +248,17 @@ Core::audio_init(int frequency)
         std::cerr << "Failed to configure playback device: " << std::string(snd_strerror(err));
 }
 
+/***
+ * closes audio device
+ */
 void Core::audio_deinit()
 {
     snd_pcm_close(g_pcm);
 }
 
+/***
+ * deletes textures and reset tex_id
+ */
 void
 Core::video_deinit()
 {
@@ -297,6 +311,11 @@ Core::video_set_pixel_format(unsigned format)
     return true;
 }
 
+/***
+ * configure the video options:
+ *  - creates window
+ * @param geom
+ */
 void
 Core::video_configure(const retro_game_geometry* geom)
 {
@@ -347,7 +366,15 @@ Core::video_configure(const retro_game_geometry* geom)
 
     refresh_vertex_data();
 }
-
+/***
+ * Resize the window to certain aspect
+ *
+ * @param ratio
+ * @param sw
+ * @param sh
+ * @param dw
+ * @param dh
+ */
 void
 Core::resize_to_aspect(double ratio, int sw, int sh, int* dw, int* dh)
 {
@@ -376,12 +403,23 @@ Core::refresh_vertex_data()
     coords[4] = coords[6] = (float)g_video.clip_w / g_video.tex_w;
 }
 
+/***
+ * Resizes the viewport
+ * @param win
+ * @param w
+ * @param h
+ */
 void
 Core::resize_cb(GLFWwindow* win, int w, int h)
 {
     glViewport(0, 0, w, h);
 }
 
+/***
+ * creates an openGL window with specified width and heigh
+ * @param width
+ * @param height
+ */
 void
 Core::create_window(int width, int height)
 {
@@ -412,7 +450,9 @@ Core::create_window(int width, int height)
 
     resize_cb(g_win, width, height);
 }
-
+/***
+ * logging function, if level = 0, no logging happens
+ */
 void
 Core::log(enum retro_log_level level, const char* fmt, ...)
 {
