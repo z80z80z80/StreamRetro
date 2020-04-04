@@ -5,6 +5,7 @@ import zmq
 import sys
 import logging
 import time
+import base64
 
 from flask import Flask, request, render_template, redirect
 from flask_socketio import SocketIO, emit
@@ -59,6 +60,13 @@ def test_message(message):
         key = 0
     '''
 
+@socketio.on('data_in', namespace='/retro')
+def test_data(message):
+    img = base64.b64decode(message.encode())    
+    f = open("static/img.jpg", "wb")
+    f.write(img)
+    f.close()
+    
 if __name__=="__main__":
     port = sys.argv[1]    
     fps = int(sys.argv[2])

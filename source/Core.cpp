@@ -22,11 +22,13 @@
 #include <unistd.h>
 
 // generate zmq socket and connect to server
-zmq::context_t context (1);
+zmq::context_t context_sub (1);
+zmq::context_t context_pub (1);
 
-static zmq::socket_t subscriber (context, ZMQ_SUB);
-static const char *filter = "";
+static zmq::socket_t subscriber (context_sub, ZMQ_SUB);
 static std::string message;
+
+static zmq::socket_t publisher (context_pub, ZMQ_PUB);
 
 namespace StreamRetro {
 
@@ -41,13 +43,18 @@ void Core::set_callbacks() {
 
 /***
  * This function loads the game and gets the game ready to be played
+ * Also initializes the communication between different system parts
  */
 void
 Core::load_game()
 {
     // initialize the socket connection between libretro frontend and http server
     subscriber.connect("tcp://127.0.0.1:1312");
+    const char *filter = "";
     subscriber.setsockopt(ZMQ_SUBSCRIBE, filter, strlen (filter));
+
+    // initialize the socket connection between libretro frontend and the websocket relais
+    publisher.bind("tcp://*:4242");
 
     retro_system_av_info av = { 0 };
     retro_system_info system = { 0 };
@@ -179,6 +186,7 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
             int tj_stat = tjCompress2(handle, scrBuffer, width, width * 3, height,
                                       TJPF_RGB, &(jpegBuffer), &jpegSize, TJSAMP_411, jpegQual, flags);
  
+            /*
             FILE *file = fopen("static/tmp.jpg", "wb");
             fwrite(jpegBuffer, jpegSize, 1, file);
 
@@ -186,7 +194,12 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
             // image still needs to be flipped (we can do this easier in css)
             fclose(file);
             system("mv static/tmp.jpg static/img.jpg");
+            */
 
+            zmq::message_t img_data(jpegSize);
+            memcpy((char*) img_data.data(), jpegBuffer, jpegSize);
+    
+            publisher.send(img_data);
         // free the allocated memory
         free(scrBuffer);
 
