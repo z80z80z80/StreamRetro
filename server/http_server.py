@@ -62,10 +62,12 @@ def test_message(message):
 
 @socketio.on('data_in', namespace='/retro')
 def test_data(message):
-    img = base64.b64decode(message.encode())    
-    f = open("static/img.jpg", "wb")
-    f.write(img)
-    f.close()
+    #img = base64.b64decode(message.encode())
+    emit('data_out', message, broadcast=True)
+    #print(message[-10:])
+    #f = open("static/img.jpg", "wb")
+    #f.write(img)
+    #f.close()
     
 if __name__=="__main__":
     port = sys.argv[1]    

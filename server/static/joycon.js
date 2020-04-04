@@ -12,7 +12,7 @@ var select1_pressed = false;
 var select2_pressed = false;
 
 var skip = 0;
-var frameskip = document.currentScript.getAttribute('frameskip'); // this will make the game run at only ~15 (4) or ~ 20 (3) FPS
+var frameskip = 0;//document.currentScript.getAttribute('frameskip'); // this will make the game run at only ~15 (4) or ~ 20 (3) FPS
 var joystick_timeout = 0;
 
 var fps = 30;
@@ -22,6 +22,11 @@ var sending = false;
 // create socket with namespace "retro"
 namespace = '/retro';
 var socket = io(namespace);
+
+var img_data = "NOTHING";
+//io.on('connection', function(socket){
+  socket.on('data_out', function(data){img_data=data;}); // update data
+//});
 
 function update(){
 	reportOnGamepad();
@@ -37,7 +42,8 @@ function update(){
 }
 
 function updateImage() {
-	document.getElementById("image").src="static/img.jpg?t=" + new Date().getTime(); // reload updated image without caching
+    document.getElementById("image").src="data:image/jpg;base64, " + img_data;
+	//document.getElementById("image").src="static/img.jpg?t=" + new Date().getTime(); // reload updated image without caching
 }
 
 function sendJoystick(ax0, ax1) { // sends joystick information back to the flask app (server.py) using XML post requests
