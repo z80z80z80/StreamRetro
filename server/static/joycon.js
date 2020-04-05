@@ -18,36 +18,40 @@ var joystick_timeout = 0;
 var fps = 30;
 
 var sending = false;
-
-var img = new Image();
-img.src = '';
+var update_frame = true;
 
 // create socket with namespace "retro"
 namespace = '/retro';
 var socket = io(namespace);
-socket.on('data_out', function(data){img.src="data:image/jpg;base64, "+data;}); // update data
-
+//socket.on('data_out', function(data){img.src="data:image/jpg;base64, "+data; update=true; console.log("data");}); // update data
+img.onload = () => update_frame = true; 
+socket.on('data_out', data => {update_frame = false; img.src = "data:image/jpg;base64, "+data;});
 //var container = document.getElementById('#container');
-var canvas;
-var ctx;
+
 
 function update(){
 	reportOnGamepad();
-
-	if (skip == frameskip){ // skip some frames 
-		updateImage();				
-		skip = 0;
-	}
-	else{
-		skip++;
-	}
+    updateImage();
 	window.requestAnimationFrame(update);
 }
 
 function updateImage() {    
     var height = 144;
     var width = 160;
-    ctx.drawImage(img, 1280/2-width/2,720/2-height);
+    //ctx.drawImage(img, 1280/2-width/2,720/2-height);
+	//if (skip == frameskip){ // skip some frames 
+    if (update_frame){
+    	ctx.drawImage(img, 0, 0);
+        update_frame = false;
+        //console.log("update_frame");
+    }
+    //console.log("updateImage");
+	//	skip = 0;
+	//}
+	//else{
+	//	skip++;
+	//}    
+
     //console.log("test");	
     //document.getElementById("image").src="data:image/jpg;base64, " + img_data;
     

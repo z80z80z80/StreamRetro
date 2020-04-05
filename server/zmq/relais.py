@@ -17,7 +17,7 @@ rec = 0
 rec_old = 0
 i = 0
 
-frameskip = 2 # 30fps until we can stream directly to the browser from either this relais or Core.cpp
+frameskip = 3 # 20-30fps seems to be all the Switch can handle (keeping it at 20fps for now)
 while True:
     i += 1
     rec = subscriber.recv()     
@@ -29,8 +29,8 @@ while True:
         #sio.emit('data_in', rec, '/retro')
         sio.emit('data_in', base64.b64encode(rec).decode(), '/retro')
         #sio.emit('data_in', {'data': "test"}, namespace='/retro')
-    #if i%60 == 0:        
-    #    print(type(base64.b64encode(rec).decode()))
+    if i%60 == 0:        
+        print(type(base64.b64encode(rec).decode()))
     rec_old = rec
     rec = 0     
 

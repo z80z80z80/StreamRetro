@@ -30,6 +30,7 @@ static std::string message;
 
 static zmq::socket_t publisher (context_pub, ZMQ_PUB);
 
+
 namespace StreamRetro {
 
 void Core::set_callbacks() {
@@ -176,7 +177,7 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
 
 
         // using TurboJPEG to write the data correctly
-        int jpegQual = 75;
+        int jpegQual = 85;
         int flags = 0;
         unsigned char* jpegBuffer = NULL;
         //unsigned char* transBuffer = NULL;

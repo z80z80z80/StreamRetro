@@ -32,32 +32,14 @@ publisher.bind("tcp://127.0.0.1:1312")
 key = 0
 key_old = 0
 
-global thread
-global running 
-running = 0
-thread = 0
-stop_event= threading.Event()
-
 def send(key):
     # Send data    
     publisher.send_string(key)    
     publisher.send_string(key)    
 
-def launch(system, rom, stop_event):
-    os.system("../../streamRetro /usr/lib/libretro/%s ../roms/%s > /dev/null &" % (system, rom))
-    
-def run(system, rom):
-    global thread
-    if thread:
-        stop_event.set()   
-    thread = threading.Thread(target=os.system, args=["./../bin/streamRetro /usr/lib/libretro/%s ../roms/%s > /dev/null" % (system, rom)], daemon=True).start()
-
 @app.route("/")#, methods=['GET', 'POST'])
 def index():    
-    global running
-    if not running:
-        threading.Thread(target=os.system, args=["python zmq/relais.py"], daemon=True).start()                   
-        running = 1
+    #threading.Thread(target=os.system, args=["python zmq/relais.py"], daemon=True).start()  
     return render_template(template)
 
 @socketio.on('connect', namespace='/retro')
@@ -69,7 +51,8 @@ def test_connect():
 def test_message(message):
     key = message['data']
     send(key)
-    #print(key)
+    if key == 'INIT':
+        print(key)
     '''    
     emit('my_response', {'data': message['data']}, broadcast=True)
     if request.method == "POST":
@@ -98,9 +81,6 @@ def test_data(message):
 if __name__=="__main__":
     channel = 1
     ap = sys.argv[1]
-    threading.Thread(target=os.system, args=["create_ap -n -c %s --redirect-to-localhost -w 1+2 %s MarikoDoom > /dev/null" % (channel, ap)], daemon=True).start()                   
-
-    run("gambatte_libretro.so", "gbai.gb")
-
+    threading.Thread(target=os.system, args=["create_ap -n -c %s --redirect-to-localhost -w 1+2 %s MarikoDoom testtesttest > /dev/null" % (channel, ap)], daemon=True).start()                      
     template = "index_20fps.html"
     socketio.run(app, host="0.0.0.0", port=80)

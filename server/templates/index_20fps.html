@@ -7,16 +7,16 @@
         <script type="text/javascript" src="static/jquery-3.4.1.min.js"></script>
         <script type="text/javascript" src="static/socket.io.js"></script>
         <script type="text/javascript" src="static/fullscreen.js"></script> <!-- script that handles switching to fullscreen -->
-        <script type="text/javascript" src="static/joycon.js" frameskip=3></script> <!-- handles joycon input, updates frames -->
         <script type="text/javascript" src="static/start.js"></script> <!-- starts the scripts when joycons are connected -->
+        <script type="text/javascript" src="static/joycon.js" frameskip=3></script> <!-- handles joycon input, updates frames -->
     </head>
 
     <body style="background-color:black;">	   
-	<div id=container style="margin:auto;text-align:center;background-color:black;background-size: 100%;">
+	<div id=container style="height:720px;margin:auto;text-align:center;background-color:black;">
 	    <a> <!-- Using an image object instead of WebRTC since the switch browser does not support this. 
 		     This produces a ~3x stretched out image to fill the screen. Keeping the aspect ratio. -->
         	<!-- <img src="static/placeholder.jpg" style="height:720px;-webkit-transform:scaleY(-1);transform:scaleY(-1);" id="image" class="center"/>  -->
-            <canvas id="frame" width="1280" height="720" style="margin:auto;text-align:center;background-color:black;-webkit-transform:scaleY(-1);transform:scaleY(-1);"></canvas>
+            <canvas id="frame" width="160" height="144" style="-webkit-transform:scaleY(-1);transform:scaleY(-1);height:720px;image-rendering: pixelated; image-rendering: -moz-crisp-edges;image-rendering: crisp-edges;"></canvas>
 	    </a>
 	</div>
 
