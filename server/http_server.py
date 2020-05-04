@@ -31,6 +31,8 @@ publisher.bind("tcp://127.0.0.1:1312")
 
 key = 0
 key_old = 0
+global sending
+sending = False
 
 def send(key):
     # Send data    
@@ -72,7 +74,13 @@ def test_screen(message):
 @socketio.on('data_in', namespace='/retro')
 def test_data(message):
     #img = base64.b64decode(message.encode())
-    emit('data_out', message, broadcast=True)
+    global sending
+    if not sending:
+        sending = True
+        emit('data_out', message, broadcast=True)
+        time.sleep(1/60)
+        sending = False
+    #print(type(message))
     #print(message[-10:])
     #f = open("static/img.jpg", "wb")
     #f.write(img)
@@ -81,6 +89,6 @@ def test_data(message):
 if __name__=="__main__":
     channel = 1
     ap = sys.argv[1]
-    threading.Thread(target=os.system, args=["create_ap -n -c %s --redirect-to-localhost -w 1+2 %s MarikoDoom testtesttest > /dev/null" % (channel, ap)], daemon=True).start()                      
+    threading.Thread(target=os.system, args=["create_ap -n -c %s --redirect-to-localhost -w 1+2 %s MarikoDoom testtesttest > /dev/null &" % (channel, ap)], daemon=True).start()                      
     template = "index_20fps.html"
     socketio.run(app, host="0.0.0.0", port=80)

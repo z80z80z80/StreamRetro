@@ -26,11 +26,14 @@ while True:
         print(type(rec))
     '''
     if i%frameskip == 0:
-        #sio.emit('data_in', rec, '/retro')
-        sio.emit('data_in', base64.b64encode(rec).decode(), '/retro')
+        try:
+            sio.emit('data_in', rec, '/retro')
+        except:
+            print("too many packages in the loop")
+        #sio.emit('data_in', base64.b64encode(rec).decode(), '/retro')
         #sio.emit('data_in', {'data': "test"}, namespace='/retro')
     if i%60 == 0:        
-        print(type(base64.b64encode(rec).decode()))
+        print(type(rec))
     rec_old = rec
     rec = 0     
 

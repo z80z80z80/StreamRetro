@@ -19,20 +19,52 @@ var fps = 30;
 
 var sending = false;
 var update_frame = true;
+var update_img = true;
+var buffer;
 
+var reload = 0;
+//var buffer;
 // create socket with namespace "retro"
-namespace = '/retro';
+var namespace = '/retro';
 var socket = io(namespace);
+var img_glob = img;
 //socket.on('data_out', function(data){img.src="data:image/jpg;base64, "+data; update=true; console.log("data");}); // update data
-img.onload = () => update_frame = true; 
-socket.on('data_out', data => {update_frame = false; img.src = "data:image/jpg;base64, "+data;});
+/*
+img_glob.onload = () => {
+    if (update_frame == false){
+        update_frame = true;         
+        update_img = true;
+    }
+};
+*/
+socket.on('data_out', data => {
+    // /*
+    if (update_frame){
+        update_frame = false;            
+        buffer = new Blob([data]);
+    //console.log(buffer);
+    //img.src = "data:image/jpg;base64, "+data;
+        img_glob.src = URL.createObjectURL(buffer);
+        buffer = null;
+        data = null;
+    }
+    //img = new ImageData(buffer, 144);
+
+});
 //var container = document.getElementById('#container');
 
 
 function update(){
 	reportOnGamepad();
-    updateImage();
+    updateImage();    
 	window.requestAnimationFrame(update);
+    
+    reload++;
+    //if (reload % 60 == 0){
+        //window.location.reload();
+    //    console.log("reload");
+    //}
+   
 }
 
 function updateImage() {    
@@ -40,11 +72,15 @@ function updateImage() {
     var width = 160;
     //ctx.drawImage(img, 1280/2-width/2,720/2-height);
 	//if (skip == frameskip){ // skip some frames 
-    if (update_frame){
-    	ctx.drawImage(img, 0, 0);
-        update_frame = false;
-        //console.log("update_frame");
-    }
+
+    //if (update_img){
+        //console.log("up");
+    	ctx.drawImage(img_glob, 0, 0);
+        //update_img=false;
+        update_frame = true;
+       
+    //}
+
     //console.log("updateImage");
 	//	skip = 0;
 	//}

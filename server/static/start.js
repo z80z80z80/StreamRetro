@@ -9,6 +9,7 @@ $(document).ready(function() {
 
             canvas = document.getElementById("container").querySelector("#frame");
             ctx = canvas.getContext('2d'); 
+            //console.log(ctx);
             //img.onload = updateImage();
             //img.onload = () => update_frame = true; 
         });       

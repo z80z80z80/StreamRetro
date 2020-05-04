@@ -177,7 +177,7 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
 
 
         // using TurboJPEG to write the data correctly
-        int jpegQual = 85;
+        int jpegQual = 95;
         int flags = 0;
         unsigned char* jpegBuffer = NULL;
         //unsigned char* transBuffer = NULL;
@@ -213,6 +213,8 @@ Core::video_refresh(const void* data, unsigned width, unsigned height, size_t pi
         publisher.send(img_data);
     // free the allocated memory
         free(scrBuffer);
+        free(jpegBuffer);
+        //free(img_data);
 
     }
 }
